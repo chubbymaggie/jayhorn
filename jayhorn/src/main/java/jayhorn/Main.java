@@ -10,7 +10,7 @@ import jayhorn.checker.Checker;
 import jayhorn.old_inconsistency_check.InconsistencyChecker;
 import jayhorn.solver.ProverFactory;
 import jayhorn.solver.princess.PrincessProverFactory;
-import jayhorn.solver.z3.Z3ProverFactory;
+import jayhorn.solver.spacer.SpacerProverFactory;
 import soottocfg.soot.SootToCfg;
 import soottocfg.soot.SootToCfg.MemModel;
 
@@ -23,8 +23,8 @@ public class Main {
 			// parse command-line arguments
 			parser.parseArgument(args);
 			ProverFactory factory = null;
-			if ("z3".equals(Options.v().getSolver())) {
-				factory = new Z3ProverFactory();
+			if ("spacer".equals(Options.v().getSolver())) {
+				factory = new SpacerProverFactory();
 			} else if ("princess".equals(Options.v().getSolver())) {
 				factory = new PrincessProverFactory();
 			} else {

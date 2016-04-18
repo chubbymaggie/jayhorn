@@ -49,12 +49,18 @@ public class Options {
 		return checker;
 	}
 	
-	@Option(name = "-solver", usage = "Select a solver [princess or z3]", required = false)
+	@Option(name = "-solver", usage = "Select a solver [princess or spacer]", required = false)
 	private String solver = "princess";
 	public String getSolver() {
 		return solver;
 	}
 	
+	@Option(name = "-solver-stats", usage = "Get Solver Statistics", required = false)
+	private boolean solver_stats = false;
+	public boolean getSolverStats() {
+		solver_stats = true;
+		return solver_stats;
+	}
 	
 	/**
 	 * JAR file

@@ -16,8 +16,7 @@ import org.junit.runners.Parameterized;
 
 import jayhorn.checker.Checker;
 import jayhorn.solver.ProverFactory;
-import jayhorn.solver.princess.PrincessProverFactory;
-import jayhorn.solver.z3.Z3ProverFactory;
+import jayhorn.solver.spacer.SpacerProverFactory;
 import jayhorn.test.Util;
 import soottocfg.soot.SootToCfg;
 
@@ -63,14 +62,9 @@ public class SimpleHornTest {
 		this.sourceFile = source;
 	}
 
-//	@Test
-//	public void testWithPrincess() {
-//		verifyAssertions(new PrincessProverFactory());
-//	}
-
 	@Test
-	public void testWithZ3() {
-		verifyAssertions(new Z3ProverFactory());
+	public void testWithSpacer() {
+		verifyAssertions(new SpacerProverFactory());
 	}
 
 	

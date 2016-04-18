@@ -3,7 +3,7 @@ package jayhorn.solver;
 import java.util.HashMap;
 import java.util.Map;
 
-import jayhorn.solver.z3.Z3ProverFactory;
+import jayhorn.solver.spacer.SpacerProverFactory;
 
 public class Main {
 
@@ -236,6 +236,11 @@ public class Main {
             p.setHornLogic(false);
         }
 
+	
+	public void testSpacer(Prover p){
+		
+		
+	}
 	public void runTests(ProverFactory factory) {
 		final Prover p = factory.spawn();
 		test01(p);
@@ -258,7 +263,7 @@ public class Main {
 
 	public static void main(String[] args) {
 //		final ProverFactory factory = new PrincessProverFactory();
-		final ProverFactory factory = new Z3ProverFactory();
+		final ProverFactory factory = new SpacerProverFactory();
 		Main m = new Main();
 		m.runTests(factory);
 	}
