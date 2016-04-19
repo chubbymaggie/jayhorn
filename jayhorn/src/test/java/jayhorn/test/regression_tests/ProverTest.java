@@ -16,7 +16,7 @@ import org.junit.runners.Parameterized;
 import jayhorn.solver.Main;
 import jayhorn.solver.ProverFactory;
 import jayhorn.solver.princess.PrincessProverFactory;
-import jayhorn.solver.z3.Z3ProverFactory;
+import jayhorn.solver.spacer.SpacerProverFactory;
 
 /**
  * @author schaef
@@ -32,7 +32,7 @@ public class ProverTest {
 	public static Collection<Object[]> data() {
 		List<Object[]> testData = new LinkedList<Object[]>();
 		testData.add(new Object[] {"Princess", new PrincessProverFactory()});
-		testData.add(new Object[] {"Z3", new Z3ProverFactory()});
+		//testData.add(new Object[] {"Spacer", new SpacerProverFactory()});
 	   return testData;
    }
 

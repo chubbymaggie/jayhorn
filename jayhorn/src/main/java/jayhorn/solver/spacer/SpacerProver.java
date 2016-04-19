@@ -38,29 +38,28 @@ import java.util.concurrent.TimeoutException;
 public class SpacerProver implements Prover {
 
 	private Context ctx;
-	private Solver solver;
-	private boolean useHornLogic;
+	//private Solver solver;
 
-
-	private Set<FuncDecl> userDeclaredFunctions = new HashSet<FuncDecl>(); // todo
+	//private Set<FuncDecl> userDeclaredFunctions = new HashSet<FuncDecl>(); // todo
 																			// hack.
 
 	private HashMap<String, String> cfg = new HashMap<String, String>();
 	private Fixedpoint fx;
 
-	static class Z3SolverThread implements Runnable {
-		private final Solver solver;
+	static class SpacerSolverThread implements Runnable {
+		private final Fixedpoint fx;
 		private Status status;
-		private Fixedpoint fx;
+		private BoolExpr rule;
 
-		public Z3SolverThread(Solver s) {
-			this.solver = s;
+		public SpacerSolverThread(Fixedpoint fx, BoolExpr rule) {
+			this.fx = fx;
+			this.rule = rule;
 		}
 
 		@Override
 		public void run() {
 			try {
-				this.status = this.solver.check();
+				this.status = this.fx.query(rule);
 			} catch (Z3Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -100,7 +99,7 @@ public class SpacerProver implements Prover {
 			params.add("xform.inline-linear", false);
 			params.add("xform.inline-eager", false);
 			params.add("pdr.utvpi", false);
-			this.fx.setParameters(params);
+			
 			if (Options.v().getSolverStats()) {
 			  params.add("print_statistics",true);
 			}
@@ -108,7 +107,7 @@ public class SpacerProver implements Prover {
 				int timeoutInMsec = (int)TimeUnit.SECONDS.toMillis(Options.v().getTimeout());
 				params.add("timeout", timeoutInMsec);
 			}
-			this.solver.setParameters(params);
+			this.fx.setParameters(params);
 		} catch (Z3Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -587,7 +586,7 @@ public class SpacerProver implements Prover {
 	@Override
 	public void push() {
 		try {
-			this.solver.push();
+			this.fx.push();
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage());
 		}
@@ -596,7 +595,7 @@ public class SpacerProver implements Prover {
 	@Override
 	public void pop() {
 		try {
-			this.solver.pop();
+			this.fx.pop();
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage());
 		}
@@ -636,14 +635,14 @@ public class SpacerProver implements Prover {
 				BoolExpr asrt;
 				if (freeVars.size()>0) {				
 					asrt =  ctx.mkForall(freeVars.toArray(new Expr[freeVars.size()]), ctx.mkImplies(body, head), 1, null, null, null, null);				
-					this.solver.add(asrt);
+					this.fx.add(asrt);
 				} else {
 					asrt =  ctx.mkImplies(body, head);
 				}
-				this.solver.add(asrt);
+				this.fx.add(asrt);
 			} else if (assertion instanceof SpacerBoolExpr) {
 				BoolExpr asrt = (BoolExpr) unpack(assertion);
-				this.solver.add(asrt);
+				this.fx.add(asrt);
 
 				if (interpolationPartition >= 0
 						&& ctx instanceof InterpolationContext) {
@@ -663,19 +662,38 @@ public class SpacerProver implements Prover {
 
 	private ExecutorService executor = null;
 	private Future<?> future = null;
-	private Z3SolverThread thread = null;
+	private SpacerSolverThread thread = null;
 
 	@Override
 	public ProverResult checkSat(boolean block) {
+		throw new RuntimeException("not implemented");
+//		try {
+//			if (block) {
+//				return translateResult(this.fx.query());
+//			} else {
+//				if (future != null && !future.isDone()) {
+//					throw new RuntimeException("Another check is still running.");
+//				}
+//				this.executor = Executors.newSingleThreadExecutor();
+//				this.thread = new SpacerSolverThread(this.fx, rule);
+//				this.future = executor.submit(this.thread);
+//				return ProverResult.Running;
+//			}
+//		} catch (Exception e) {
+//			throw new RuntimeException(e.getMessage());
+//		}
+	}
+
+	public ProverResult checkSat(boolean block, BoolExpr rule) {
 		try {
 			if (block) {
-				return translateResult(this.solver.check());
+				return translateResult(this.fx.query(rule));
 			} else {
 				if (future != null && !future.isDone()) {
 					throw new RuntimeException("Another check is still running.");
 				}
 				this.executor = Executors.newSingleThreadExecutor();
-				this.thread = new Z3SolverThread(solver);
+				this.thread = new SpacerSolverThread(this.fx, rule);
 				this.future = executor.submit(this.thread);
 				return ProverResult.Running;
 			}
@@ -683,7 +701,7 @@ public class SpacerProver implements Prover {
 			throw new RuntimeException(e.getMessage());
 		}
 	}
-
+	
 	private ProverResult translateResult(Status status) {
 		if (status == Status.SATISFIABLE) {
 			return ProverResult.Sat;
@@ -820,7 +838,7 @@ public class SpacerProver implements Prover {
 			BoolExpr pat = ictx.mkAnd(patternList.toArray(new BoolExpr[patternList
 					.size()]));
 			Params params = ictx.mkParams();
-			Expr proof = this.solver.getProof();
+			Expr proof = this.fx.getGroundSatAnswer();
 		
 			Expr[] interps = ictx.GetInterpolant(proof, pat, params);
 			
@@ -841,21 +859,23 @@ public class SpacerProver implements Prover {
 
 	@Override
 	public ProverExpr evaluate(ProverExpr expr) {
-		try {
-			Model m = this.solver.getModel();
-			if (m == null) {
-				throw new RuntimeException("no model :(");
-			}
-			Expr e = unpack(expr);
-
-			if (e.isConst()) {
-				return new SpacerTermExpr(m.getConstInterp(e), expr.getType());
-			}
-
-			return new SpacerTermExpr(m.evaluate(e, false), expr.getType());
-		} catch (Exception e) {
-			throw new RuntimeException(e.getMessage());
-		}
+		throw new RuntimeException("not implemented");
+//		try {
+//			Model m = this.solver.getModel();
+//			Expr trace = this.fx.getRulesAlongTrace();
+//			if (m == null) {
+//				throw new RuntimeException("no model :(");
+//			}
+//			Expr e = unpack(expr);
+//
+//			if (e.isConst()) {
+//				return new SpacerTermExpr(m.getConstInterp(e), expr.getType());
+//			}
+//
+//			return new SpacerTermExpr(m.evaluate(e, false), expr.getType());
+//		} catch (Exception e) {
+//			throw new RuntimeException(e.getMessage());
+//		}
 	}
 
 	@Override
@@ -919,8 +939,9 @@ public class SpacerProver implements Prover {
 		// TODO Is this true?
 		killThread();
 		try {
-			this.solver.reset();
-			this.solver.dispose();
+//			this.solver.reset();
+//			this.solver.dispose();
+			this.fx.dispose();
 			ctx.dispose();
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage());
@@ -932,7 +953,7 @@ public class SpacerProver implements Prover {
 	public void reset() {
 		killThread();
 		try {
-			this.solver.reset();
+			//this.solver.reset();
 			this.interpolationPattern = new TreeMap<Integer, List<BoolExpr>>();
 			this.interpolationPartition = -1;
 		} catch (Exception e) {
@@ -964,7 +985,6 @@ public class SpacerProver implements Prover {
 
 	@Override
 	public void setHornLogic(boolean b) {
-		useHornLogic = b;
 		createSolver();		
 	}
 	
@@ -1004,7 +1024,7 @@ public class SpacerProver implements Prover {
 				BoolExpr asrt;
 				if (freeVars.size()>0) {				
 					asrt =  ctx.mkForall(freeVars.toArray(new Expr[freeVars.size()]), ctx.mkImplies(body, head), 1, null, null, null, null);				
-					this.solver.add(asrt);
+					this.fx.add(asrt);
 				} else {
 					asrt =  ctx.mkImplies(body, head);
 				}

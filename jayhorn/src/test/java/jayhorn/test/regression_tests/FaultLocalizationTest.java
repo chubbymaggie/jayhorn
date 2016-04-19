@@ -17,7 +17,7 @@ import org.junit.runners.Parameterized;
 import jayhorn.old_inconsistency_check.InconsistencyChecker;
 import jayhorn.solver.ProverFactory;
 import jayhorn.solver.princess.PrincessProverFactory;
-import jayhorn.solver.z3.Z3ProverFactory;
+import jayhorn.solver.spacer.SpacerProverFactory;
 import jayhorn.test.Util;
 import soottocfg.soot.SootToCfg;
 import soottocfg.soot.SootToCfg.MemModel;
@@ -72,7 +72,7 @@ public class FaultLocalizationTest {
 
 	@Test
 	public void testOldAlgorithmWithZ3() {
-		oldAlgorithm(new Z3ProverFactory());
+		oldAlgorithm(new SpacerProverFactory());
 	}
 
 	

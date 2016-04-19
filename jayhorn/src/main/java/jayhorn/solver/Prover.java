@@ -2,6 +2,8 @@ package jayhorn.solver;
 
 import java.math.BigInteger;
 
+import com.microsoft.z3.BoolExpr;
+
 public interface Prover {
 
 	// Types
@@ -114,6 +116,8 @@ public interface Prover {
 	 * immediately.
 	 */
 	ProverResult checkSat(boolean block);
+	
+	
 
 	/**
 	 * After a <code>Sat</code> result, continue searching for the next model.
