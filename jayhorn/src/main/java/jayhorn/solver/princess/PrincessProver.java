@@ -191,6 +191,36 @@ public class PrincessProver implements Prover {
 				((PrincessProverExpr) right).toFormula()));
 	}
 
+//	public ProverExpr mkBOr(ProverExpr left, ProverExpr right) {
+//		return new FormulaExpr(new IBinFormula(IBinJunctor.Or(), ((PrincessProverExpr) left).toFormula(),
+//				((PrincessProverExpr) right).toFormula()));
+//	}
+//	
+//	public ProverExpr mkBAnd(ProverExpr left, ProverExpr right) {
+//		return new FormulaExpr(new IBinFormula(IBinJunctor.And(), ((PrincessProverExpr) left).toFormula(),
+//				((PrincessProverExpr) right).toFormula()));
+//	}
+//	
+//	public ProverExpr mkUshr(ProverExpr left, ProverExpr right) {
+//		return new FormulaExpr(new IBinFormula(IBinJunctor.Or(), ((PrincessProverExpr) left).toFormula(),
+//				((PrincessProverExpr) right).toFormula()));
+//	}
+//	
+//	public ProverExpr mkShr(ProverExpr left, ProverExpr right) {
+//		return new FormulaExpr(new IBinFormula(IBinJunctor.Or(), ((PrincessProverExpr) left).toFormula(),
+//				((PrincessProverExpr) right).toFormula()));
+//	}
+//	
+//	public ProverExpr mkShl(ProverExpr left, ProverExpr right) {
+//		return new FormulaExpr(new IBinFormula(IBinJunctor.Or(), ((PrincessProverExpr) left).toFormula(),
+//				((PrincessProverExpr) right).toFormula()));
+//	}
+//	
+//	public ProverExpr mkXor(ProverExpr left, ProverExpr right) {
+//		return new FormulaExpr(new IBinFormula(IBinJunctor.Or(), ((PrincessProverExpr) left).toFormula(),
+//				((PrincessProverExpr) right).toFormula()));
+//	}
+	
 	public ProverExpr mkOr(ProverExpr[] args) {
 		final ArrayBuffer<IFormula> argsBuf = new ArrayBuffer<IFormula>();
 		for (int i = 0; i < args.length; ++i)

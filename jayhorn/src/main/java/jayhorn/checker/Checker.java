@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import com.microsoft.z3.Params;
 
 import java.util.Set;
 
@@ -28,7 +27,6 @@ import jayhorn.solver.ProverFun;
 import jayhorn.solver.ProverHornClause;
 import jayhorn.solver.ProverResult;
 import jayhorn.solver.ProverType;
-import soot.options.Options;
 import soottocfg.cfg.ClassVariable;
 import soottocfg.cfg.LiveVars;
 import soottocfg.cfg.Program;
@@ -138,7 +136,7 @@ public class Checker {
 	////////////////////////////////////////////////////////////////////////////
 
 	private class MethodEncoder {
-            private final Program program;
+        private final Program program;
 		private final Method method;
 		private final MethodContract methodContract;
 		private final Prover p;
@@ -600,7 +598,26 @@ public class Checker {
 					throw new RuntimeException
                                             ("instanceof is only supported for concrete types");
                                     }
-
+                // Bit operations
+                case Xor: case Shl: case Shr: case Ushr: case BOr: case And:
+                	ProverType[] typ = new ProverType [] {left.getType(), right.getType()};
+                	p.mkUnintFunction("BVOperator", typ, p.getBooleanType());
+                                	
+//                 case Xor
+//                	 p.mkU
+//                	 return p.mkXor(left,right);
+//                 case Shl:
+//                	 return p.mkShl(left,right);
+//                 case Shr:
+//                	 return p.mkShr(left,right);
+//                 case Ushr:
+//                	 return p.mkUshr(left,right);
+//                 case BOr:
+//                	 return p.mkBOr(left,right);
+//                 case BAnd:
+//                	 return p.mkBAnd(left,right);
+                	 
+                                		
 				default: {
 					throw new RuntimeException("Not implemented for " + be.getOp());
 				}
@@ -644,9 +661,9 @@ public class Checker {
 		try {
 			Log.info("Building type hierarchy");
 
-                        for (ClassVariable var :
-                                 program.getTypeGraph().vertexSet())
-                            typeIds.put(var, typeIds.size());
+			for (ClassVariable var :
+				program.getTypeGraph().vertexSet())
+				typeIds.put(var, typeIds.size());
 
 			Log.info("Generating method contracts");
 
@@ -656,9 +673,9 @@ public class Checker {
 				final List<Variable> postParams = new ArrayList<Variable>();
 				postParams.addAll(method.getInParams());
 				if (method.getOutParam().isPresent()) {
-                                    postParams.add(method.getOutParam().get());
-                                } else if (method.getReturnType().isPresent()) {
-                                    postParams.add(new Variable ("resultVar", method.getReturnType().get()));
+					postParams.add(method.getOutParam().get());
+				} else if (method.getReturnType().isPresent()) {
+					postParams.add(new Variable ("resultVar", method.getReturnType().get()));
 				}
 
 				final ProverFun prePred = freshHornPredicate(p, method.getMethodName() + "_pre", inParams);
@@ -684,10 +701,10 @@ public class Checker {
 				// if (method.getMethodName().contains("init"))
 				// continue;
 
-                            final MethodEncoder encoder = new MethodEncoder(p, program, method);
+                final MethodEncoder encoder = new MethodEncoder(p, program, method);
 				encoder.encode();
 				clauses.addAll(encoder.clauses);
-
+                Log.info("\tEncoding : " + method.getMethodName());
 				Log.info("\tNumber of clauses:  " + encoder.clauses.size());
 				for (ProverHornClause clause : encoder.clauses)
 					Log.info("\t\t" + clause);
@@ -695,10 +712,14 @@ public class Checker {
 
 			for (Method method : program.getEntryPoints()) {
 				Log.info("\tVerification from entry " + method.getMethodName());
-
-				p.push();
+                
+				if (factory.getProver().equals("princess")){
+					p.push();
+				}
+					
 				for (ProverHornClause clause : clauses)
 					p.addAssertion(clause);
+
 
 				// add an entry clause from the preconditions
 				final HornPredicate entryPred = methodContracts.get(method.getMethodName()).precondition;
@@ -718,7 +739,9 @@ public class Checker {
 					result = p.checkSat(true);	
 				}
 
-				p.pop();
+				if (factory.getProver().equals("princess")){
+					p.pop();
+				}
 			}
 		} catch (Throwable t) {
 			t.printStackTrace();

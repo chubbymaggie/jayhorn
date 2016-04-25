@@ -55,6 +55,20 @@ public interface Prover {
 	ProverExpr mkImplies(ProverExpr left, ProverExpr right);
 
 	ProverExpr mkIte(ProverExpr cond, ProverExpr thenExpr, ProverExpr elseExpr);
+	
+	// Bitwise operator
+//	ProverExpr mkBAnd(ProverExpr left, ProverExpr right);
+//	
+//	ProverExpr mkBOr(ProverExpr left, ProverExpr right);
+//	
+//	ProverExpr mkUshr(ProverExpr left, ProverExpr right);
+//	
+//	ProverExpr mkShr(ProverExpr left, ProverExpr right);
+//	
+//	ProverExpr mkShl(ProverExpr left, ProverExpr right);
+//	
+//	ProverExpr mkXor(ProverExpr left, ProverExpr right);
+	
 
 	// Arithmetic
 	ProverExpr mkLiteral(int value);

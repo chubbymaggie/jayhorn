@@ -21,6 +21,7 @@ class SpacerFun implements ProverFun {
 		this.fun = fun;
 		this.resType = resType;
 		this.ctx = ctx;
+		
 	}
 
 	public FuncDecl getFun() {
@@ -39,11 +40,20 @@ class SpacerFun implements ProverFun {
 		
 		try {
 			if (this.resType == BoolType.INSTANCE) {
+				System.out.println("Here");
+				System.out.println(this.fun);
+				System.out.println(z3args);
+				System.out.println(ctx.toString());
+				if (z3args == null){ System.out.println("isnull");}
+				SpacerBoolExpr spbool = new SpacerBoolExpr((BoolExpr) ctx.mkApp(this.fun, z3args));
+				System.out.println(spbool.toString());
 				return new SpacerBoolExpr((BoolExpr) ctx.mkApp(this.fun, z3args));
 			} else {
+				System.out.println("There");
 				return new SpacerTermExpr(ctx.mkApp(this.fun, z3args), this.resType);
 			}
 		} catch (Exception e) {
+			System.out.println(e.getMessage());
 			throw new RuntimeException(e.getMessage());
 		}
 	}

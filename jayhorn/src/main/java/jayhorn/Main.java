@@ -33,7 +33,7 @@ public class Main {
 			
 			if ("safety".equals(Options.v().getChecker())) {
 				SootToCfg soot2cfg = new SootToCfg(true, false, MemModel.PackUnpack);
-				soot2cfg.run(Options.v().getJavaInput(), Options.v().getClasspath());			
+				soot2cfg.run(Options.v().getJavaInput(), Options.v().getClasspath());
 				Checker checker = new Checker(factory);
 				boolean result = checker.checkProgram(soot2cfg.getProgram());
 				System.out.println("checker says "+ result);		

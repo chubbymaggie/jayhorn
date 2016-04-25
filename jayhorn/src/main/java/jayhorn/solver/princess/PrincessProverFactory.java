@@ -15,4 +15,8 @@ public class PrincessProverFactory implements ProverFactory {
 		return new PrincessProver(basename);
 	}
 
+	@Override
+	public String getProver(){
+		return "princess";
+	}
 }

@@ -18,14 +18,13 @@ public class SpacerProverFactory implements ProverFactory {
 	 */
 	@Override
 	public Prover spawn() {
-		Prover z3 = null;
+		Prover spacer = null;
 		try {
-			z3 = new SpacerProver();
-//			z3 = new Z3HornProver();
+			spacer = new SpacerProver();
 		} catch (UnsatisfiedLinkError e) {
-			Log.error("Cannot start z3. "+e.toString());
+			Log.error("Cannot start spacer. "+e.toString());
 		}
-		return z3;
+		return spacer;
 	}
 
 	/* (non-Javadoc)
@@ -34,6 +33,11 @@ public class SpacerProverFactory implements ProverFactory {
 	@Override
 	public Prover spawnWithLog(String basename) {
 		return spawn();
+	}
+	
+	@Override
+	public String getProver(){
+		return "spacer";
 	}
 
 }

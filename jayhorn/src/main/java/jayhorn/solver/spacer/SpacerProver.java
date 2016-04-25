@@ -293,9 +293,6 @@ public class SpacerProver implements Prover {
 				}
 				
 			};
-//		} catch (Z3Exception e) {
-//			throw new RuntimeException(e.getMessage());
-//		}
 	}
 
 	@Override
@@ -340,19 +337,87 @@ public class SpacerProver implements Prover {
 			}
 		}
 
-		@Override
-		public ProverExpr mkAnd(ProverExpr left, ProverExpr right)   {
-			try
-			{
-				return new SpacerBoolExpr(ctx.mkAnd((BoolExpr) unpack(left),
-						(BoolExpr) unpack(right)));
-			}catch (Exception e){
-				throw new RuntimeException(e.getMessage());
-			}
-
+	@Override
+	public ProverExpr mkAnd(ProverExpr left, ProverExpr right)   {
+		try
+		{
+			return new SpacerBoolExpr(ctx.mkAnd((BoolExpr) unpack(left),
+					(BoolExpr) unpack(right)));
+		}catch (Exception e){
+			throw new RuntimeException(e.getMessage());
 		}
 
+	}
 
+//	@Override
+//	public ProverExpr mkBAnd(ProverExpr left, ProverExpr right)   {
+//		try
+//		{
+//			return new SpacerBoolExpr(ctx.mkAnd((BoolExpr) unpack(left),
+//					(BoolExpr) unpack(right)));
+//		}catch (Exception e){
+//			throw new RuntimeException(e.getMessage());
+//		}
+//
+//	}
+//	
+//	@Override
+//	public ProverExpr mkBOr(ProverExpr left, ProverExpr right)   {
+//		try
+//		{
+//			return new SpacerBoolExpr(ctx.mkOr((BoolExpr) unpack(left),
+//					(BoolExpr) unpack(right)));
+//		}catch (Exception e){
+//			throw new RuntimeException(e.getMessage());
+//		}
+//
+//	}
+//	
+//	@Override
+//	public ProverExpr mkXor(ProverExpr left, ProverExpr right)   {
+//		try
+//		{
+//			return new SpacerBoolExpr(ctx.mkOr((BoolExpr) unpack(left),
+//					(BoolExpr) unpack(right)));
+//		}catch (Exception e){
+//			throw new RuntimeException(e.getMessage());
+//		}
+//	}
+//
+//	
+//	@Override
+//	public ProverExpr mkUshr(ProverExpr left, ProverExpr right)   {
+//		try
+//		{
+//			return new SpacerBoolExpr(ctx.mkOr((BoolExpr) unpack(left),
+//					(BoolExpr) unpack(right)));
+//		}catch (Exception e){
+//			throw new RuntimeException(e.getMessage());
+//		}
+//	}
+//	
+//	@Override
+//	public ProverExpr mkShr(ProverExpr left, ProverExpr right)   {
+//		try
+//		{
+//			return new SpacerBoolExpr(ctx.mkOr((BoolExpr) unpack(left),
+//					(BoolExpr) unpack(right)));
+//		}catch (Exception e){
+//			throw new RuntimeException(e.getMessage());
+//		}
+//	}
+//	
+//	@Override
+//	public ProverExpr mkShl(ProverExpr left, ProverExpr right)   {
+//		try
+//		{
+//			return new SpacerBoolExpr(ctx.mkOr((BoolExpr) unpack(left),
+//					(BoolExpr) unpack(right)));
+//		}catch (Exception e){
+//			throw new RuntimeException(e.getMessage());
+//		}
+//	}
+//	
 	@Override
 	public ProverExpr mkAnd(ProverExpr[] args)  {
 		try {
@@ -635,11 +700,13 @@ public class SpacerProver implements Prover {
 				BoolExpr asrt;
 				if (freeVars.size()>0) {				
 					asrt =  ctx.mkForall(freeVars.toArray(new Expr[freeVars.size()]), ctx.mkImplies(body, head), 1, null, null, null, null);				
-					this.fx.add(asrt);
+					//this.fx.add(asrt);
+					this.fx.addRule(asrt, null);
 				} else {
 					asrt =  ctx.mkImplies(body, head);
 				}
-				this.fx.add(asrt);
+				//this.fx.add(asrt);
+				this.fx.addRule(asrt, null);
 			} else if (assertion instanceof SpacerBoolExpr) {
 				BoolExpr asrt = (BoolExpr) unpack(assertion);
 				this.fx.add(asrt);
