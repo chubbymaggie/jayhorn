@@ -7,6 +7,7 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 import jayhorn.checker.Checker;
+import jayhorn.hornify.Hornify;
 import jayhorn.old_inconsistency_check.InconsistencyChecker;
 import jayhorn.solver.ProverFactory;
 import jayhorn.solver.princess.PrincessProverFactory;
@@ -28,15 +29,20 @@ public class Main {
 			} else if ("princess".equals(Options.v().getSolver())) {
 				factory = new PrincessProverFactory();
 			} else {
-				throw new RuntimeException("Don't know solver " + Options.v().getSolver() + ". Using Princess instead.");
+				Log.info("Warning: Don't know solver " + Options.v().getSolver() + ". Using Princess instead.");
+				factory = new PrincessProverFactory();
 			}
 			
 			if ("safety".equals(Options.v().getChecker())) {
 				SootToCfg soot2cfg = new SootToCfg(true, false, MemModel.PackUnpack);
 				soot2cfg.run(Options.v().getJavaInput(), Options.v().getClasspath());
-				Checker checker = new Checker(factory);
-				boolean result = checker.checkProgram(soot2cfg.getProgram());
-				System.out.println("checker says "+ result);		
+				
+				System.out.println("..... Hornifying .....");
+				Hornify hornify = new Hornify(factory);
+				hornify.toHorn(soot2cfg.getProgram());
+				
+				//boolean result = checker.checkProgram(soot2cfg.getProgram());
+				//System.out.println("checker says "+ result);		
 			} else if ("inconsistency".equals(Options.v().getChecker())) {
 				SootToCfg soot2cfg = new SootToCfg(false, true, MemModel.BurstallBornat);
 				soot2cfg.run(Options.v().getJavaInput(), Options.v().getClasspath());			
@@ -48,7 +54,7 @@ public class Main {
 			
 		} catch (CmdLineException e) {
 			Log.error(e.toString());
-			Log.error("java -jar joogie.jar [options...] arguments...");
+			Log.error("java -jar jayhorn.jar [options...] arguments...");
 			parser.printUsage(System.err);
 		} catch (Throwable t) {
 			Log.error(t.toString());
